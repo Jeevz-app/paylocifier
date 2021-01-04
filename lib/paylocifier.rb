@@ -1,6 +1,14 @@
-require "paylocifier/version"
-
+require 'paylocifier/version'
+require 'paylocifier/config'
+require 'paylocifier/client'
 module Paylocifier
   class Error < StandardError; end
-  # Your code goes here...
+
+  def self.configure
+    yield config
+  end
+
+  def self.config
+    @@config ||= Paylocifier::Config.new
+  end
 end

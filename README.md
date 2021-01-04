@@ -1,3 +1,5 @@
+[![Build Status](https://jeevz.semaphoreci.com/badges/paylocifier/branches/master.svg)](https://jeevz.semaphoreci.com/projects/paylocifier)
+
 # Paylocifier
 
 Paylocifier is a Ruby gem built by Jeevz (Cardinal Fez Inc) to facilitate interacting with the Paylocity API.

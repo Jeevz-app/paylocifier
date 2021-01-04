@@ -1,4 +1,4 @@
-[![Build Status](https://jeevz.semaphoreci.com/badges/paylocifier/branches/master.svg)](https://jeevz.semaphoreci.com/projects/paylocifier)
+[![Build Status](https://jeevz.semaphoreci.com/badges/paylocifier/branches/main.svg)](https://jeevz.semaphoreci.com/projects/paylocifier)
 
 # Paylocifier
 

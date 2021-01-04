@@ -1,0 +1,32 @@
+version: v1.0
+name: Ruby
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Setup
+    dependencies: []
+    task:
+      jobs:
+        - name: bundle install
+          commands:
+            - checkout
+            - cache restore
+            - sem-version ruby 2.6.0
+            - bundle install -j 4 --deployment --path vendor/bundle
+            - cache store
+
+  - name: Specs
+    dependencies:
+      - Setup
+    task:
+      prologue:
+        commands:
+          - checkout
+      jobs:
+        - name: Rspec
+          commands:
+            - cache restore
+            - bundle install -j 4 --path vendor/bundle
+            - bundle exec rspec

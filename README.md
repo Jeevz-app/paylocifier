@@ -4,6 +4,12 @@
 
 Paylocifier is a Ruby gem built by Jeevz (Cardinal Fez Inc) to facilitate interacting with the Paylocity API.
 
+## TODO
+
+- Map the rest of the API models and associations
+- Pagination support
+- Model data validations
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -40,7 +46,7 @@ First, ensure you've configured the gem.
 ```ruby
 Paylocifier::Employee.find(1) # find individual employee by id
 Paylocifier::Employee.all # find all employees
-Paylocifier::Employee.create # create a new employee
+Paylocifier::Employee.create(name: 'Trey Anastasio', ...) # create a new employee
 ```
 
 ### Earnings

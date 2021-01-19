@@ -1,10 +1,19 @@
 class Paylocifier::Config
-  attr_accessor :api_key, :api_secret, :host
+  attr_accessor :client_id,
+    :client_secret,
+    :company_id,
+    :host
 
-  def initialize(api_key: nil, api_secret: nil, host: nil)
-    @api_key     = api_key
-    @api_secret  = api_secret
-    @host        = host
+  def initialize(
+    client_id:      nil,
+    client_secret:  nil,
+    company_id:     nil,
+    host:           nil
+  )
+    @client_id      = client_id
+    @client_secret  = client_secret
+    @company_id     = company_id
+    @host           = host
   end
 end
 

@@ -12,3 +12,13 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+def configure!
+  Paylocifier.configure do |config|
+    config.client_id      = 'client_id'
+    config.client_secret  = 'secret'
+    config.company_id     = 'id'
+    config.host           = 'https://example.com'
+  end
+  Paylocifier::Client.class_variable_set(:@@access_token, 'abc')
+end

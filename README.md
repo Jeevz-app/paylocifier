@@ -4,8 +4,6 @@
 
 Paylocifier is a Ruby gem built by Jeevz (Cardinal Fez Inc) to facilitate interacting with the Paylocity API.
 
-Put your Ruby code in the file `lib/paylocifier`. To experiment with that code, run `bin/console` for an interactive prompt.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -21,6 +19,17 @@ And then execute:
 Or install it yourself as:
 
     $ gem install paylocifier
+
+In an initializer:
+
+```ruby
+Paylocifier.configure do |config|
+  config.client_id = 'id'
+  config.client_secret = 'secret'
+  config.company_id = 'id'
+  config.host = 'host'
+end
+```
 
 ## Usage
 

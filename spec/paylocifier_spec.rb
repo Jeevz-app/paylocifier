@@ -4,18 +4,16 @@ RSpec.describe Paylocifier do
   end
 
   it 'is configurable' do
-    expect(Paylocifier.config.api_key).to be(nil)
-    expect(Paylocifier.config.api_secret).to be(nil)
-    expect(Paylocifier.config.host).to be(nil)
-
     Paylocifier.configure do |config|
-      config.api_key = 'key'
-      config.api_secret = 'secret'
-      config.host = 'host'
+      config.client_id      = 'newid'
+      config.client_secret  = 'newsecret'
+      config.company_id     = 'compid'
+      config.host           = 'https://api.com'
     end
 
-    expect(Paylocifier.config.api_key).to eq('key')
-    expect(Paylocifier.config.api_secret).to eq('secret')
-    expect(Paylocifier.config.host).to eq('host')
+    expect(Paylocifier.config.client_id).to     eq('newid')
+    expect(Paylocifier.config.client_secret).to eq('newsecret')
+    expect(Paylocifier.config.company_id).to    eq('compid')
+    expect(Paylocifier.config.host).to          eq('https://api.com')
   end
 end

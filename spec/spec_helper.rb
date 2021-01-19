@@ -22,3 +22,9 @@ def configure!
   end
   Paylocifier::Client.class_variable_set(:@@access_token, 'abc')
 end
+
+RSpec::Matchers.define :have_many do |association|
+  match do |model|
+    model.send(:associations).include?(association.to_s)
+  end
+end

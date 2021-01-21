@@ -1,6 +1,7 @@
 require 'paylocifier/version'
 require 'paylocifier/config'
 require 'paylocifier/client'
+require 'paylocifier/encryption'
 
 require 'paylocifier/collection'
 require 'paylocifier/models/employee'

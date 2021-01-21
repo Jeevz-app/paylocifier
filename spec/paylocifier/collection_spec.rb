@@ -53,7 +53,7 @@ RSpec.describe Paylocifier::Collection do
     end
 
     it 'properly calls the api w/ the right nesting' do
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(path, data)
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with(path)
 
       create
     end

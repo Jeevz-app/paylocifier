@@ -1,4 +1,5 @@
 require 'active_support/inflector'
+require 'active_support/core_ext/hash'
 require 'hashie'
 
 require_relative 'collection'
@@ -52,6 +53,9 @@ class Paylocifier::Model
     end
 
     def create(data)
+      data.deep_transform_keys! { |x| x.to_s.camelize(:lower) }
+
+      self.new(client.post("#{ url }", data))
     end
   end
 

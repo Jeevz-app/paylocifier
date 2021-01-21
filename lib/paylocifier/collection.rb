@@ -24,7 +24,9 @@ class Paylocifier::Collection
   end
 
   def create(data)
-    model_class.new(data: client.post(path, data))
+    data.deep_transform_keys! { |x| x.to_s.camelize(:lower) }
+
+    model_class.new(client.post(path, data))
   end
 
   private

@@ -15,10 +15,11 @@ end
 
 def configure!
   Paylocifier.configure do |config|
-    config.client_id      = 'client_id'
-    config.client_secret  = 'secret'
-    config.company_id     = 'id'
-    config.host           = 'https://example.com'
+    config.client_id            = 'client_id'
+    config.client_secret        = 'secret'
+    config.company_id           = 'id'
+    config.host                 = 'https://example.com'
+    config.encryption_key_path  = File.expand_path(File.dirname(__FILE__) + '/support/pkey.pem')
   end
   Paylocifier::Client.class_variable_set(:@@access_token, 'abc')
 end

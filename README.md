@@ -39,7 +39,15 @@ end
 
 ## Usage
 
-First, ensure you've configured the gem.
+First, ensure you've configured the gem properly
+
+## Encryption
+
+By default Paylocity requires your paylods to be encrypted.  You can disable encryption when setting up your account.  If you did, set encryption to false in the config: `config.encryption = false`.
+
+If you do, however, need encryption, you must supply a pem file to the config.  Paylocity by default gives you an xml file w/ RSA modulus and exponents.  You can convert this to PEM using [this converter](https://superdry.apphb.com/tools/online-rsa-key-converter).  Once you have your PEM file, supply it to the config: `config.encryption_key_path = 'path_to_file.pem'`.
+
+This gem doesn't currently do any data validation on input as each Paylocity setup will have different configurations and requirements, so try to create some records and inspect the errors raised to see the required inputs.
 
 ### Employees
 

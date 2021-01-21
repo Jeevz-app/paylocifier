@@ -81,6 +81,7 @@ DEPENDENCIES
   guard
   hashie
   paylocifier!
+  pry
   rake (~> 12.0)
   rspec (~> 3.0)
 

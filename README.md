@@ -9,6 +9,7 @@ Paylocifier is a Ruby gem built by Jeevz (Cardinal Fez Inc) to facilitate intera
 - Map the rest of the API models and associations
 - Pagination support
 - Model data validations
+- Lazy evaluation on collection method chains: `@employee.earnings.create` should not hit the API twice to fetch earnings and then create one, for example, nor should `@employee.earnings.find(6)` need to fetch all earnings first
 
 ## Installation
 

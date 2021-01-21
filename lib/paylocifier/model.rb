@@ -32,6 +32,14 @@ class Paylocifier::Model
       @id_alias || :id
     end
 
+    def create_method(method_name)
+      @create_verb = method_name
+    end
+
+    def create_verb
+      @create_verb || :post
+    end
+
     def client
       @client ||= Paylocifier::Client.new
     end

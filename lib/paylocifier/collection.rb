@@ -7,7 +7,7 @@ class Paylocifier::Collection
 
   class NotFound < StandardError; end
 
-  attr_reader :data, :model_class, :path
+  attr_reader :data, :model_class, :path, :create_method
 
   def initialize(data: [], model_class: nil, path: nil)
     @data           = Array(data)
@@ -16,7 +16,11 @@ class Paylocifier::Collection
   end
 
   def find(id)
-    data.find { |item| item.id.to_s === id.to_s }
+    if data.empty?
+      model_class.new(client.get("#{ path }/#{ id }"))
+    else
+      data.find { |item| item.id.to_s === id.to_s }
+    end
   end
 
   def find!(id)
@@ -26,7 +30,7 @@ class Paylocifier::Collection
   def create(data)
     data.deep_transform_keys! { |x| x.to_s.camelize(:lower) }
 
-    model_class.new(client.post(path, data))
+    model_class.new(client.send(model_class.create_verb, path, data))
   end
 
   private

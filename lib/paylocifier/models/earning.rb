@@ -4,6 +4,8 @@ class Paylocifier::Earning < Paylocifier::Model
   endpoint :earnings
 
   id :earning_code
+
+  create_method :put
 end
 
 # employeeId + companyId required

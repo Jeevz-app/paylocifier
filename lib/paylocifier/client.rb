@@ -14,8 +14,16 @@ class Paylocifier::Client
   end
 
   def post(url, data)
+    send_request(:post, url, data)
+  end
+
+  def put(url, data)
+    send_request(:put, url, data)
+  end
+
+  def send_request(method, url, data)
     body = config.encryption ? Paylocifier::Encryption.encode(data) : data
-    parse_response(connection.post(url.to_s) do |req|
+    parse_response(connection.send(method, url.to_s) do |req|
       req.body = body.to_json
     end)
   end

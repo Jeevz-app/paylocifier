@@ -27,10 +27,17 @@ RSpec.describe Paylocifier::Collection do
   end
 
   describe '#find!' do
-    it 'should raise a NotFound error' do
-      expect { described_class.new(data: [], model_class: Paylocifier::Earning).find!(1) }.to raise_error(
-        Paylocifier::Collection::NotFound
-      )
+    context 'when data is loaded' do
+      let(:earning) { Paylocifier::Earning.new(earning_code: 1, name: 'Earning 1') }
+
+      it 'should raise a NotFound error' do
+        expect { described_class.new(data: [earning], model_class: Paylocifier::Earning).find!(2) }.to raise_error(
+          Paylocifier::Collection::NotFound
+        )
+      end
+    end
+
+    context 'when data has not been fetched yet' do
     end
   end
 
@@ -48,12 +55,12 @@ RSpec.describe Paylocifier::Collection do
 
     before do
       configure!
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Faraday::Connection).to receive(:send)
         .and_return(double(status: 200, body: { id: 1 }.to_json))
     end
 
     it 'properly calls the api w/ the right nesting' do
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(path)
+      expect_any_instance_of(Faraday::Connection).to receive(:send).with(:put, path)
 
       create
     end

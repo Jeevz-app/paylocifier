@@ -7,7 +7,6 @@ Paylocifier is a Ruby gem built by Jeevz (Cardinal Fez Inc) to facilitate intera
 ## TODO
 
 - Map the rest of the API models and associations
-- Pagination support
 - Model data validations
 
 ## Installation
@@ -43,7 +42,7 @@ First, ensure you've configured the gem properly
 
 ## Encryption
 
-By default Paylocity requires your paylods to be encrypted.  You can disable encryption when setting up your account.  If you did, set encryption to false in the config: `config.encryption = false`.
+By default Paylocity requires your payloads to be encrypted.  You can disable encryption when setting up your account.  If you did, set encryption to false in the config: `config.encryption = false`.
 
 If you do, however, need encryption, you must supply a pem file to the config.  Paylocity by default gives you an xml file w/ RSA modulus and exponents.  You can convert this to PEM using [this converter](https://superdry.apphb.com/tools/online-rsa-key-converter).  Once you have your PEM file, supply it to the config: `config.encryption_key_path = 'path_to_file.pem'`.
 
@@ -61,9 +60,11 @@ Paylocifier::Employee.create(name: 'Trey Anastasio', ...) # create a new employe
 
 ```ruby
 employee = Paylocifier::Employee.find(1)
-employee.earnings # fetch all employee earnings
+employee.earnings.all # fetch all employee earnings
 employee.earnings.create(amount: 10, ...) # create new earning for employee
 ```
+
+Associations are lazy loaded by default, so calling `employee.earnings` will not fetch the data from the API.  You must call a method that acts on the data like `all` or Enumberable methods like `each` or `map`.
 
 ## Development
 

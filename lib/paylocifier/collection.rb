@@ -10,16 +10,22 @@ class Paylocifier::Collection
   attr_reader :data, :model_class, :path, :create_method
 
   def initialize(data: [], model_class: nil, path: nil)
-    @data           = Array(data)
+    @data           = data
     @model_class    = model_class || @data.first&.class || raise(ArgumentError.new('Paylocifier::Collection initialization requries model_class if data is empty'))
     @path           = path
   end
 
+  def all
+    @data ||= client.get(path).map do |data|
+      model_class.new(data)
+    end
+  end
+
   def find(id)
-    if data.empty?
-      model_class.new(client.get("#{ path }/#{ id }"))
-    else
+    if data
       data.find { |item| item.id.to_s === id.to_s }
+    else
+      model_class.new(client.get("#{ path }/#{ id }"))
     end
   end
 
@@ -36,7 +42,10 @@ class Paylocifier::Collection
   private
 
   def method_missing(method, *args, &block)
-    return data.send(method, *args, &block) if data.respond_to?(method)
+    if [].respond_to?(method)
+      all if !data
+      return data.send(method, *args, &block)
+    end
     super
   end
 

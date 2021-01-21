@@ -95,6 +95,20 @@ class Paylocifier::Model
     )
   end
 
+  def association(association_name)
+    ivar = :"@#{ association_name }"
+    instance_variable_get(ivar) || instance_variable_set(ivar, begin
+      association_class = "Paylocifier::#{ association_name.to_s.singularize.capitalize }".constantize
+      association_path  = "#{ url }/#{ self.id }/#{ association_name }"
+
+      Paylocifier::Collection.new(
+        data:         nil,
+        model_class:  association_class,
+        path:         association_path
+      )
+    end)
+  end
+
   def client; self.class.client; end
   def url; self.class.url; end
   def id_alias; self.class.id_alias; end
@@ -104,7 +118,7 @@ class Paylocifier::Model
 
   def method_missing(method, *args)
     return data.send(method, *args)   if data.respond_to?(method)
-    return fetch_association(method)  if Array(associations).include?(method.to_s)
+    return association(method) if Array(associations).include?(method.to_s)
 
     super
   end

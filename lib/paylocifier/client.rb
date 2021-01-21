@@ -77,9 +77,9 @@ class Paylocifier::Client
     if resp.status == 200
       data = JSON.parse(resp.body)
       if data.is_a?(Array)
-        data.map { |item| item.transform_keys(&:underscore) }
+        data.map { |item| item.deep_transform_keys!(&:underscore) }
       else
-        data.transform_keys(&:underscore)
+        data.deep_transform_keys!(&:underscore)
       end
     elsif resp.status == 400
       messages = JSON.parse(resp.body).map { |item| "\t - #{ item['message'] } #{ item['options'] }" }

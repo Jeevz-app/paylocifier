@@ -6,6 +6,7 @@ require 'paylocifier/encryption'
 require 'paylocifier/collection'
 require 'paylocifier/models/employee'
 require 'paylocifier/models/earning'
+require 'paylocifier/models/deduction'
 
 module Paylocifier
   class Error < StandardError; end

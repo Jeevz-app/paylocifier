@@ -9,7 +9,7 @@ class Paylocifier::Model
   # private_class_method :new
 
   class << self
-    attr_reader :url, :associations
+    attr_reader :url, :associations, :legacy
 
     def endpoint(url)
       @url ||= url
@@ -40,12 +40,16 @@ class Paylocifier::Model
       @create_verb || :post
     end
 
+    def legacy!
+      @legacy = true
+    end
+
     def client
       @client ||= Paylocifier::Client.new
     end
 
     def all
-      collection = client.get(url).map do |data|
+      collection = client.get(url, legacy: legacy).map do |data|
         self.new(data)
       end
 
@@ -57,34 +61,47 @@ class Paylocifier::Model
     end
 
     def find(id)
-      self.new(client.get("#{ url }/#{ id }"))
+      self.new(client.get("#{ url }/#{ id }", legacy: legacy))
     end
 
     def create(data)
       data.deep_transform_keys! { |x| x.to_s.camelize(:lower) }
 
-      self.new(client.post("#{ url }", data))
+      self.new(client.post("#{ url }", data, legacy: legacy))
     end
   end
 
-  attr_reader :data
+  attr_reader :data, :path
 
-  def initialize(data)
+  def initialize(data, relative_path: nil)
     @data = Hashie::Mash.new(data)
+    @path = relative_path
   end
 
   def update(data)
   end
 
+  def destroy
+    puts delete_path || uri
+
+    client.delete(delete_path || uri)
+  end
+
   def id; self.send(id_alias); end
+
+  def uri
+    [(path || url), "#{ self.id }"].compact.join('/')
+  end
 
   protected
 
+  def delete_path; end
+
   def fetch_association(association_name)
     association_class = "Paylocifier::#{ association_name.to_s.singularize.capitalize }".constantize
-    association_path  = "#{ url }/#{ self.id }/#{ association_name }"
+    association_path  = "#{ uri }/#{ association_name }"
 
-    collection = client.get(association_path).map do |data|
+    collection = client.get(association_path, legacy: legacy).map do |data|
       association_class.new(data)
     end
 
@@ -99,7 +116,7 @@ class Paylocifier::Model
     ivar = :"@#{ association_name }"
     instance_variable_get(ivar) || instance_variable_set(ivar, begin
       association_class = "Paylocifier::#{ association_name.to_s.singularize.capitalize }".constantize
-      association_path  = "#{ url }/#{ self.id }/#{ association_name }"
+      association_path  = "#{ uri }/#{ association_name }"
 
       Paylocifier::Collection.new(
         data:         nil,
@@ -112,6 +129,7 @@ class Paylocifier::Model
   def client; self.class.client; end
   def url; self.class.url; end
   def id_alias; self.class.id_alias; end
+  def legacy; self.class.legacy; end
   def associations; self.class.associations; end
 
   private

@@ -13,23 +13,43 @@ class Paylocifier::Client
     @config = Paylocifier.config
   end
 
-  def post(url, data)
-    send_request(:post, url, data)
+  def post(url, data, legacy: false)
+    send_request(:post, url, data, legacy: legacy)
   end
 
-  def put(url, data)
-    send_request(:put, url, data)
+  def put(url, data, legacy: false)
+    send_request(:put, url, data, legacy: legacy)
   end
 
-  def send_request(method, url, data)
+  def delete(url, legacy: false)
+    conn = legacy ? legacy_connection : connection
+    parse_response(conn.delete(url.to_s))
+  end
+
+  def send_request(method, url, data, legacy: false)
+    conn = if url == 'deduction'
+      puts "USING DEDUCTION CONNECTION"
+      legacy_deduction_connection
+    elsif legacy
+      legacy_connection
+    else
+      connection
+    end
+
+    puts method
+    puts url
+    puts data
+
     body = config.encryption ? Paylocifier::Encryption.encode(data) : data
-    parse_response(connection.send(method, url.to_s) do |req|
+
+    parse_response(conn.send(method, url.to_s) do |req|
       req.body = body.to_json
     end)
   end
 
-  def get(url)
-    parse_response(connection.get(url.to_s))
+  def get(url, legacy: false)
+    conn = legacy ? legacy_connection : connection
+    parse_response(conn.get(url.to_s))
   end
 
   def refresh_token!
@@ -81,9 +101,37 @@ class Paylocifier::Client
     )
   end
 
+  def legacy_connection
+    refresh_token! if @@access_token.nil?
+    @connection ||= Faraday.new(
+      url:      "#{ config.legacy_host }/companies/#{ config.company_id }/",
+      headers:  {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer #{ @@access_token }"
+      }
+    )
+  end
+
+  def legacy_deduction_connection
+    refresh_token! if @@access_token.nil?
+    @connection ||= Faraday.new(
+      url:      "#{ config.legacy_host }/",
+      headers:  {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer #{ @@access_token }"
+      }
+    )
+  end
+
   def parse_response(resp)
     if resp.status == 200
-      data = JSON.parse(resp.body)
+      data = resp.body
+      if data.is_a?(String) && data.length > 0
+        data = JSON.parse(resp.body)
+      elsif data.is_a?(String) && data.length == 0
+        return 'Success'
+      end
+
       if data.is_a?(Array)
         data.map { |item| item.deep_transform_keys!(&:underscore) }
       else

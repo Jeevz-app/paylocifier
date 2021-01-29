@@ -6,4 +6,5 @@ class Paylocifier::Employee < Paylocifier::Model
   id :employee_id
 
   has_many :earnings
+  has_many :deductions
 end

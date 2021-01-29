@@ -16,8 +16,8 @@ class Paylocifier::Collection
   end
 
   def all
-    @data ||= client.get(path).map do |data|
-      model_class.new(data)
+    @data ||= client.get(path, legacy: model_class.legacy).map do |data|
+      model_class.new(data, relative_path: path)
     end
   end
 
@@ -25,7 +25,7 @@ class Paylocifier::Collection
     if data
       data.find { |item| item.id.to_s === id.to_s }
     else
-      model_class.new(client.get("#{ path }/#{ id }"))
+      model_class.new(client.get("#{ path }/#{ id }", legacy: model_class.legacy), relative_path: path)
     end
   end
 
@@ -36,7 +36,21 @@ class Paylocifier::Collection
   def create(data)
     data.deep_transform_keys! { |x| x.to_s.camelize(:lower) }
 
-    model_class.new(client.send(model_class.create_verb, path, data))
+    url = self.path
+    if model_class == Paylocifier::Deduction
+      data = { deduction: data }
+      data[:deduction][:employeeId] = path.gsub('employees/', '').to_i
+      data[:deduction][:companyNumber] = Paylocifier.config.company_id
+      url = 'deduction'
+    end
+
+    resp = client.send(model_class.create_verb, url, data, legacy: model_class.legacy)
+
+    if resp.is_a?(String)
+      resp
+    else
+      model_class.new(resp, relative_path: url)
+    end
   end
 
   private

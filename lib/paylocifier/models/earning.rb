@@ -6,6 +6,12 @@ class Paylocifier::Earning < Paylocifier::Model
   id :earning_code
 
   create_method :put
+
+  protected
+
+  def delete_path
+    "#{ uri }/#{ self.start_date }"
+  end
 end
 
 # employeeId + companyId required

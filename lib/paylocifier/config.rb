@@ -5,7 +5,10 @@ class Paylocifier::Config
     :host,
     :legacy_host,
     :encryption_key_path,
-    :encryption
+    :encryption,
+    :payroll_host,
+    :payroll_secret,
+    :payroll_client_id
 
   def initialize(
     client_id:            nil,
@@ -14,7 +17,10 @@ class Paylocifier::Config
     host:                 nil,
     legacy_host:          nil,
     encryption_key_path:  nil,
-    encryption:           true
+    encryption:           true,
+    payroll_host:         nil,
+    payroll_secret:       nil,
+    payroll_client_id:    nil
   )
     @client_id            = client_id
     @client_secret        = client_secret
@@ -23,6 +29,9 @@ class Paylocifier::Config
     @legacy_host          = legacy_host
     @encryption_key_path  = encryption_key_path
     @encryption           = encryption
+    @payroll_host         = payroll_host
+    @payroll_secret       = payroll_secret
+    @payroll_client_id    = payroll_client_id
   end
 end
 

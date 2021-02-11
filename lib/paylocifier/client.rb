@@ -7,7 +7,8 @@ require_relative 'encryption'
 class Paylocifier::Client
   attr_reader :config
 
-  @@access_token = nil
+  @@access_token          = nil
+  @@payroll_access_token  = nil
 
   def initialize
     @config = Paylocifier.config
@@ -68,6 +69,22 @@ class Paylocifier::Client
     @@access_token = parse_response(resp)['access_token']
   end
 
+  def refresh_payroll_token!
+    conn = Faraday.new(url: config.payroll_host.gsub(%r(/?payroll/v[12]/?), ''))
+    resp = conn.post('IdentityServer/connect/token') do |req|
+      req.body = {
+        grant_type: 'client_credentials',
+        scope:      'WebLinkAPI'
+      }
+      req.headers = {
+        'Content-Type':   'application/x-www-form-urlencoded',
+        'Authorization':  "Basic #{ payroll_oauth_token }"
+      }
+    end
+
+    @@payroll_access_token = parse_response(resp)['access_token']
+  end
+
   def fetch_secret
     # conn = Faraday.new(url: config.host)
     # resp = conn.post('IdentityServer/connect/token') do |req|
@@ -90,6 +107,10 @@ class Paylocifier::Client
     Base64.strict_encode64("#{ config.client_id }:#{ config.client_secret }")
   end
 
+  def payroll_oauth_token
+    Base64.strict_encode64("#{ config.payroll_client_id }:#{ config.payroll_secret }")
+  end
+
   def connection
     refresh_token! if @@access_token.nil?
     @connection ||= Faraday.new(
@@ -103,7 +124,7 @@ class Paylocifier::Client
 
   def legacy_connection
     refresh_token! if @@access_token.nil?
-    @connection ||= Faraday.new(
+    @legacy_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/companies/#{ config.company_id }/",
       headers:  {
         'Content-Type': 'application/json',
@@ -112,9 +133,24 @@ class Paylocifier::Client
     )
   end
 
+  def payroll_connection
+    refresh_payroll_token! if @@payroll_access_token.nil?
+    url = "#{ config.payroll_host }/companies/{companyid}/"
+
+    @payroll_connection ||= Faraday.new(url: url) do |faraday|
+      faraday.request :multipart
+      faraday.request :url_encoded
+      faraday.adapter :net_http
+      faraday.headers = {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer #{ @@access_token }"
+      }
+    end
+  end
+
   def legacy_deduction_connection
     refresh_token! if @@access_token.nil?
-    @connection ||= Faraday.new(
+    @legacy_deduction_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/",
       headers:  {
         'Content-Type': 'application/json',

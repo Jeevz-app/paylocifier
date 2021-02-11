@@ -3,6 +3,7 @@ require 'paylocifier/config'
 require 'paylocifier/client'
 require 'paylocifier/encryption'
 
+require 'paylocifier/payroll'
 require 'paylocifier/collection'
 require 'paylocifier/models/employee'
 require 'paylocifier/models/earning'

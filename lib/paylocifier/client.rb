@@ -70,15 +70,17 @@ class Paylocifier::Client
   end
 
   def refresh_payroll_token!
-    conn = Faraday.new(url: config.payroll_host.gsub(%r(/?payroll/v[12]/?), ''))
-    resp = conn.post('IdentityServer/connect/token') do |req|
+    conn = Faraday.new(url: config.payroll_token_endpoint)
+    resp = conn.post('public/security/v1/token') do |req|
       req.body = {
-        grant_type: 'client_credentials',
-        scope:      'WebLinkAPI'
+        grant_type:     'client_credentials',
+        scope:          'all',
+        client_id:      config.payroll_client_id,
+        client_secret:  config.payroll_secret
       }
       req.headers = {
         'Content-Type':   'application/x-www-form-urlencoded',
-        'Authorization':  "Basic #{ payroll_oauth_token }"
+        # 'Authorization':  "Basic #{ payroll_oauth_token }"
       }
     end
 
@@ -160,7 +162,7 @@ class Paylocifier::Client
   end
 
   def parse_response(resp)
-    if resp.status == 200
+    if resp.status.between?(200, 299)
       data = resp.body
       if data.is_a?(String) && data.length > 0
         data = JSON.parse(resp.body)

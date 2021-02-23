@@ -4,6 +4,24 @@ require 'json'
 
 require_relative 'encryption'
 
+class Faraday::Request::Multipart < Faraday::Request::UrlEncoded
+  def create_multipart(env, params)
+    boundary = env.request.boundary
+    parts = process_params(params) do |key, value|
+      if (JSON.parse(value) rescue false)
+        Faraday::Parts::Part.new(boundary, key, value, 'Content-Type' => 'application/json')
+      else
+        Faraday::Parts::Part.new(boundary, key, value)
+      end
+    end
+    parts << Faraday::Parts::EpiloguePart.new(boundary)
+
+    body = Faraday::CompositeReadIO.new(parts)
+    env.request_headers[Faraday::Env::ContentLength] = body.length.to_s
+    return body
+  end
+end
+
 class Paylocifier::Client
   attr_reader :config
 
@@ -36,10 +54,6 @@ class Paylocifier::Client
     else
       connection
     end
-
-    puts method
-    puts url
-    puts data
 
     body = config.encryption ? Paylocifier::Encryption.encode(data) : data
 
@@ -103,6 +117,21 @@ class Paylocifier::Client
     # @@access_token = parse_response(resp)['access_token']
   end
 
+  def payroll_connection
+    refresh_payroll_token! if @@payroll_access_token.nil?
+    url = "#{ config.payroll_host }/companies/#{ config.company_id }/"
+
+    @payroll_connection ||= Faraday.new(url: url) do |faraday|
+      faraday.request :multipart
+      faraday.request :url_encoded
+      faraday.adapter :net_http
+      faraday.headers = {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': "Bearer #{ @@payroll_access_token }"
+      }
+    end
+  end
+
   private
 
   def oauth_token
@@ -133,21 +162,6 @@ class Paylocifier::Client
         'Authorization': "Bearer #{ @@access_token }"
       }
     )
-  end
-
-  def payroll_connection
-    refresh_payroll_token! if @@payroll_access_token.nil?
-    url = "#{ config.payroll_host }/companies/{companyid}/"
-
-    @payroll_connection ||= Faraday.new(url: url) do |faraday|
-      faraday.request :multipart
-      faraday.request :url_encoded
-      faraday.adapter :net_http
-      faraday.headers = {
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer #{ @@access_token }"
-      }
-    end
   end
 
   def legacy_deduction_connection

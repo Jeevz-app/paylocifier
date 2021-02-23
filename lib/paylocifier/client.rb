@@ -126,7 +126,6 @@ class Paylocifier::Client
       faraday.request :url_encoded
       faraday.adapter :net_http
       faraday.headers = {
-        'Content-Type': 'multipart/form-data',
         'Authorization': "Bearer #{ @@payroll_access_token }"
       }
     end

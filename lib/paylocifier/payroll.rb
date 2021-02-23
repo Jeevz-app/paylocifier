@@ -23,6 +23,26 @@ class Paylocifier::Payroll
       })
     end
 
+    # def post_test
+    #   csv = CSV.generate(headers: false) do |data|
+    #     data << ['999621057','E','BONUS',nil,10.50]
+    #   end
+
+    #   temp_file = Tempfile.new 'payroll', '/tmp'
+    #   temp_file.write csv
+    #   temp_file.rewind
+
+    #   file      = Faraday::UploadIO.new(temp_file, 'text/plain')
+
+    #   client.payroll_connection.post('payEntryImport', {
+    #     file:                   file,
+    #     AutoAcknowledge:        true,
+    #     'Calendar.PayPeriodBeginDate': '2021-02-14',
+    #     'Calendar.PayPeriodEndDate':   '2021-02-20',
+    #     'Calendar.CheckDate':          '2021-02-26',
+    #   })
+    # end
+
     def get
     end
   end

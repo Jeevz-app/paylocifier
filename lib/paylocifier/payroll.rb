@@ -15,11 +15,11 @@ class Paylocifier::Payroll
 
     def post(file:, begin_date:, end_date:, check_date:, auto_acknowledge: true)
       client.payroll_connection.post('payEntryImport', {
-        file:                   file,
-        AutoAcknowledge:        auto_acknowledge,
-        'Calendar.PayPeriodBeginDate': '2021-02-14',
-        'Calendar.PayPeriodEndDate':   '2021-02-20',
-        'Calendar.CheckDate':          '2021-02-26',
+        file:                           file,
+        AutoAcknowledge:                auto_acknowledge,
+        'Calendar.PayPeriodBeginDate':  begin_date,
+        'Calendar.PayPeriodEndDate':    end_date,
+        'Calendar.CheckDate':           check_date,
       })
     end
 

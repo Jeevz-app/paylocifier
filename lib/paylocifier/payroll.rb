@@ -13,13 +13,14 @@ class Paylocifier::Payroll
       @client ||= Paylocifier::Client.new
     end
 
-    def post(file:, begin_date:, end_date:, check_date:, auto_acknowledge: true)
+    def post(file:, begin_date:, end_date:, check_date:, batch_name:, auto_acknowledge: true)
       client.payroll_connection.post('payEntryImport', {
         file:                           file,
         AutoAcknowledge:                auto_acknowledge,
         'Calendar.PayPeriodBeginDate':  begin_date,
         'Calendar.PayPeriodEndDate':    end_date,
         'Calendar.CheckDate':           check_date,
+        'Batch.BatchName':              batch_name,
       })
     end
 
@@ -44,6 +45,7 @@ class Paylocifier::Payroll
     # end
 
     def get
+      # payEntryImport
     end
   end
 end

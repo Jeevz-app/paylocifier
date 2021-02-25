@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paylocifier (0.1.1)
+    paylocifier (0.1.3)
 
 GEM
   remote: https://rubygems.org/

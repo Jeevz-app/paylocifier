@@ -118,7 +118,7 @@ class Paylocifier::Client
   end
 
   def payroll_connection
-    refresh_payroll_token! if @@payroll_access_token.nil?
+    refresh_payroll_token!
     url = "#{ config.payroll_host }/companies/#{ config.company_id }/"
 
     @payroll_connection ||= Faraday.new(url: url) do |faraday|
@@ -142,7 +142,7 @@ class Paylocifier::Client
   end
 
   def connection
-    refresh_token! if @@access_token.nil?
+    refresh_token!
     @connection ||= Faraday.new(
       url:      "#{ config.host }/companies/#{ config.company_id }/",
       headers:  {
@@ -153,7 +153,7 @@ class Paylocifier::Client
   end
 
   def legacy_connection
-    refresh_token! if @@access_token.nil?
+    refresh_token!
     @legacy_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/companies/#{ config.company_id }/",
       headers:  {
@@ -164,7 +164,7 @@ class Paylocifier::Client
   end
 
   def legacy_deduction_connection
-    refresh_token! if @@access_token.nil?
+    refresh_token!
     @legacy_deduction_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/",
       headers:  {

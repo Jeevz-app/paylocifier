@@ -1,4 +1,8 @@
 RSpec.describe Paylocifier::Collection do
+  before do
+    allow_any_instance_of(Paylocifier::Client).to receive(:refresh_token!).and_return('1234')
+  end
+
   describe '#new' do
     let(:earning) { Paylocifier::Earning.new(earning_code: 1) }
 

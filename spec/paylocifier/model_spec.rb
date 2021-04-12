@@ -8,6 +8,10 @@ RSpec.describe Paylocifier::Model do
 
     class MockedModel < Paylocifier::Model; end
 
+    before do
+      allow_any_instance_of(Paylocifier::Client).to receive(:refresh_token!).and_return('1234')
+    end
+
     describe '#endpoint' do
       it 'should set the endpoint for the model' do
         expect(MockedModel.url).to be(nil)
@@ -108,6 +112,7 @@ RSpec.describe Paylocifier::Model do
         configure!
         allow_any_instance_of(Faraday::Connection).to receive(:get)
           .and_return(double(status: 200, body: [{ dog_id: 1 }].to_json))
+        allow_any_instance_of(Paylocifier::Client).to receive(:refresh_token!).and_return('1234')
       end
 
       class Paylocifier::Dog < Paylocifier::Model

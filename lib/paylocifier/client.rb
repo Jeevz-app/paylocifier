@@ -25,9 +25,6 @@ end
 class Paylocifier::Client
   attr_reader :config
 
-  @@access_token          = nil
-  @@payroll_access_token  = nil
-
   def initialize
     @config = Paylocifier.config
   end
@@ -80,7 +77,7 @@ class Paylocifier::Client
       }
     end
 
-    @@access_token = parse_response(resp)['access_token']
+    parse_response(resp)['access_token']
   end
 
   def refresh_payroll_token!
@@ -98,7 +95,7 @@ class Paylocifier::Client
       }
     end
 
-    @@payroll_access_token = parse_response(resp)['access_token']
+    parse_response(resp)['access_token']
   end
 
   def fetch_secret
@@ -118,7 +115,7 @@ class Paylocifier::Client
   end
 
   def payroll_connection
-    refresh_payroll_token!
+    token = refresh_payroll_token!
     url = "#{ config.payroll_host }/companies/#{ config.company_id }/"
 
     @payroll_connection ||= Faraday.new(url: url) do |faraday|
@@ -126,7 +123,7 @@ class Paylocifier::Client
       faraday.request :url_encoded
       faraday.adapter :net_http
       faraday.headers = {
-        'Authorization': "Bearer #{ @@payroll_access_token }"
+        'Authorization': "Bearer #{ token }"
       }
     end
   end
@@ -142,34 +139,34 @@ class Paylocifier::Client
   end
 
   def connection
-    refresh_token!
+    token = refresh_token!
     @connection ||= Faraday.new(
       url:      "#{ config.host }/companies/#{ config.company_id }/",
       headers:  {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer #{ @@access_token }"
+        'Authorization': "Bearer #{ token }"
       }
     )
   end
 
   def legacy_connection
-    refresh_token!
+    token = refresh_token!
     @legacy_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/companies/#{ config.company_id }/",
       headers:  {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer #{ @@access_token }"
+        'Authorization': "Bearer #{ token }"
       }
     )
   end
 
   def legacy_deduction_connection
-    refresh_token!
+    token = refresh_token!
     @legacy_deduction_connection ||= Faraday.new(
       url:      "#{ config.legacy_host }/",
       headers:  {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer #{ @@access_token }"
+        'Authorization': "Bearer #{ token }"
       }
     )
   end

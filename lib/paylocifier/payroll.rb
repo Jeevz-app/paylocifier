@@ -44,8 +44,8 @@ class Paylocifier::Payroll
     #   })
     # end
 
-    def get
-      # payEntryImport
+    def get(file_id)
+      client.payroll_connection.get("payEntryImport/#{file_id}")
     end
   end
 end

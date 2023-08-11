@@ -6,6 +6,6 @@ gemspec
 gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
 
-gem 'activesupport'
-gem 'faraday'
+gem 'activesupport', '~> 6.0'
+gem 'faraday', '~> 1.0'
 gem 'hashie'

@@ -3,6 +3,7 @@ require 'base64'
 require 'json'
 
 require_relative 'encryption'
+require_relative 'paylocifier_error.rb'
 
 class Faraday::Request::Multipart < Faraday::Request::UrlEncoded
   def create_multipart(env, params)
@@ -44,7 +45,6 @@ class Paylocifier::Client
 
   def send_request(method, url, data, legacy: false)
     conn = if url == 'deduction'
-      puts "USING DEDUCTION CONNECTION"
       legacy_deduction_connection
     elsif legacy
       legacy_connection
@@ -114,6 +114,22 @@ class Paylocifier::Client
     # @@access_token = parse_response(resp)['access_token']
   end
 
+  def fetch_weblink_credentials(code:, payroll_host: false)
+    token = refresh_token!
+    conn = Faraday.new(url: payroll_host ? config.payroll_host : config.host)
+    conn.post('credentials/secrets') do |req|
+      req.body = {
+        grant_type: 'client_credentials',
+        scope:      'WebLinkAPI',
+        code:       code,
+      }
+      req.headers = {
+        'Content-Type':   'application/x-www-form-urlencoded',
+        'Authorization':  "Basic #{ token }"
+      }
+    end
+  end
+
   def payroll_connection
     token = refresh_payroll_token!
     url = "#{ config.payroll_host }/companies/#{ config.company_id }/"
@@ -140,7 +156,7 @@ class Paylocifier::Client
 
   def connection
     token = refresh_token!
-    @connection ||= Faraday.new(
+    @connection = Faraday.new(
       url:      "#{ config.host }/companies/#{ config.company_id }/",
       headers:  {
         'Content-Type': 'application/json',
@@ -151,7 +167,7 @@ class Paylocifier::Client
 
   def legacy_connection
     token = refresh_token!
-    @legacy_connection ||= Faraday.new(
+    @legacy_connection = Faraday.new(
       url:      "#{ config.legacy_host }/companies/#{ config.company_id }/",
       headers:  {
         'Content-Type': 'application/json',
@@ -162,7 +178,7 @@ class Paylocifier::Client
 
   def legacy_deduction_connection
     token = refresh_token!
-    @legacy_deduction_connection ||= Faraday.new(
+    @legacy_deduction_connection = Faraday.new(
       url:      "#{ config.legacy_host }/",
       headers:  {
         'Content-Type': 'application/json',
@@ -186,11 +202,13 @@ class Paylocifier::Client
         data.deep_transform_keys!(&:underscore)
       end
     elsif resp.status == 400
+      puts resp.status
+      puts resp.body
+
       messages = JSON.parse(resp.body).map { |item| "\t - #{ item['message'] } #{ item['options'] }" }
-      messages = messages.join("\n")
-      raise "#{ resp.status }:\n\n#{ messages }"
+      raise PaylocifierError.new(resp.status, messages)
     else
-      raise "#{ resp.status } - #{ resp.reason_phrase }"
+      raise PaylocifierError.new(resp.status, [resp.reason_phrase])
     end
   end
 end

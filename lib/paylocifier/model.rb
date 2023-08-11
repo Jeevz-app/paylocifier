@@ -82,8 +82,6 @@ class Paylocifier::Model
   end
 
   def destroy
-    puts delete_path || uri
-
     client.delete(delete_path || uri)
   end
 

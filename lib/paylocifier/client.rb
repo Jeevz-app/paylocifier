@@ -202,6 +202,9 @@ class Paylocifier::Client
         data.deep_transform_keys!(&:underscore)
       end
     elsif resp.status == 400
+      puts '---------Paylocity error'
+      puts resp.body
+
       messages = JSON.parse(resp.body).map { |item| "\t - #{ item['message'] } #{ item['options'] }" }
       raise PaylocifierError.new(resp.status, messages)
     else
